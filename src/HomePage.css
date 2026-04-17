@@ -1,0 +1,121 @@
+.home-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background: var(--color-bg);
+  direction: rtl;
+}
+
+.home-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+}
+
+.home-title {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.home-tagline {
+  font-size: 1rem;
+  color: #aaa;
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.home-choose {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.home-modes {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  width: 100%;
+  justify-content: center;
+}
+
+.mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  max-width: 160px;
+  padding: 20px 10px;
+  border: 2px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-header-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, transform 0.12s;
+  font-family: inherit;
+}
+
+.mode-btn:hover {
+  transform: translateY(-3px);
+  background: #252527;
+}
+
+.mode-btn-8 {
+  border-color: var(--color-correct);
+}
+.mode-btn-8:hover {
+  border-color: #6abf64;
+}
+
+.mode-btn-16 {
+  border-color: var(--color-present);
+}
+.mode-btn-16:hover {
+  border-color: #d4b84a;
+}
+
+.mode-btn-32 {
+  border-color: #c0392b;
+}
+.mode-btn-32:hover {
+  border-color: #e74c3c;
+}
+
+.mode-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.mode-label {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.mode-boards {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+
+.home-hint {
+  font-size: 0.82rem;
+  color: #666;
+  margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .home-title { font-size: 2.2rem; }
+  .home-modes { gap: 8px; }
+  .mode-btn { padding: 14px 6px; }
+  .mode-label { font-size: 1.1rem; }
+}

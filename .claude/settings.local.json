@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd.exe /c \"where node > C:\\\\Users\\\\tzach\\\\Desktop\\\\Yael\\\\Claude\\\\HebrewSedecordle\\\\node_path.txt 2>&1\")",
+      "Bash(powershell.exe -Command \"Get-Command node -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source; Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Read(//c/Users/tzach/AppData/Local/**)",
+      "Read(//c/Users/tzach/**)",
+      "Read(//c/Program Files/**)",
+      "Bash(find /c -maxdepth 5 -name \"node.exe\")",
+      "WebFetch(domain:hspell.ivrix.org.il)",
+      "Bash(curl -k -s \"http://hspell.ivrix.org.il/\")",
+      "Bash(curl -k -s \"http://hspell.ivrix.org.il/download.html\")",
+      "Read(//c/tmp/**)",
+      "Bash(curl -s \"http://hspell.sourceforge.net/hspell-1.4.tar.gz\" -o hspell-1.4.tar.gz)",
+      "Bash(curl -v \"http://hspell.sourceforge.net/hspell-1.4.tar.gz\" -o /tmp/hspell-1.4.tar.gz)",
+      "Bash(curl -L -s \"https://hspell.sourceforge.net/hspell-1.4.tar.gz\" -o /tmp/hspell-1.4.tar.gz)",
+      "Read(//tmp/**)",
+      "Bash(tar -tzf hspell-1.4.tar.gz)",
+      "Bash(tar -xzf hspell-1.4.tar.gz hspell-1.4/milot.hif hspell-1.4/biza-nouns.hif hspell-1.4/biza-verbs.hif hspell-1.4/extrawords.hif hspell-1.4/wolig.dat hspell-1.4/woo.dat)",
+      "Bash(iconv -f iso-8859-8 -t utf-8)",
+      "Bash(iconv -f iso-8859-8 -t utf-8 /tmp/hspell-1.4/milot.hif)",
+      "Bash(iconv -f iso-8859-8 -t utf-8 /tmp/hspell-1.4/extrawords.hif)",
+      "Bash(iconv -f iso-8859-8 -t utf-8 /tmp/hspell-1.4/wolig.dat)",
+      "Bash(grep -v \"^$\")",
+      "Bash(python3)",
+      "Bash(ls /tmp/*.tar.gz)",
+      "Bash(python3 -c \"import os; print\\(os.listdir\\('/tmp/hspell-1.4/'\\)\\)\")",
+      "Bash(python3 -c \"import os; print\\(os.listdir\\('/tmp/'\\)\\)\")",
+      "Bash(python3 -c \"import subprocess; r = subprocess.run\\(['bash', '-c', 'cygpath -w /tmp'], capture_output=True, text=True\\); print\\(r.stdout.strip\\(\\)\\)\")",
+      "Bash(python3 -c ':*)",
+      "Bash(node --input-type=module)",
+      "Bash(gh auth *)"
+    ]
+  }
+}
