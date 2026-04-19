@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const KEYBOARD_ROWS = [
   ['פ', 'ו', 'ט', 'א', 'ר', 'ק'],
@@ -6,7 +6,16 @@ const KEYBOARD_ROWS = [
   ['ת', 'צ', 'מ', 'נ', 'ה', 'ב', 'ס', 'ז'],
 ];
 
-// רינדור גריד המשבצות בתוך הכפתור
+function useMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 600);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return isMobile;
+}
+
 function KeyGrid({ statuses, numBoards }) {
   return (
     <div className={`key-grid key-grid-${numBoards}`} aria-hidden="true">
@@ -20,21 +29,39 @@ function KeyGrid({ statuses, numBoards }) {
 export default function Keyboard({ onLetter, onDelete, onEnter, keyStatus, isInvalidWord, inputFull, numBoards }) {
   const enterDisabled = inputFull && isInvalidWord;
   const empty = new Array(numBoards).fill('');
+  const isMobile = useMobile();
+
+  const enterBtn = (
+    <button
+      className={`key key-wide key-enter ${enterDisabled ? 'key-disabled' : ''}`}
+      onClick={onEnter}
+      disabled={enterDisabled}
+      aria-label="אישור"
+    >
+      אישור
+    </button>
+  );
+
+  const deleteBtn = (
+    <button
+      className="key key-wide key-delete"
+      onClick={onDelete}
+      aria-label="מחיקה"
+    >
+      ⌦
+    </button>
+  );
 
   return (
     <div className="keyboard" dir="rtl">
       {KEYBOARD_ROWS.map((row, rowIdx) => (
         <div key={rowIdx} className="keyboard-row">
-          {rowIdx === 2 && (
-            <button
-              className={`key key-wide key-enter ${enterDisabled ? 'key-disabled' : ''}`}
-              onClick={onEnter}
-              disabled={enterDisabled}
-              aria-label="אישור"
-            >
-              אישור
-            </button>
-          )}
+          {/* במובייל: enter מימין לפ' בשורה 0 */}
+          {isMobile && rowIdx === 0 && enterBtn}
+
+          {/* בדסקטופ: enter מימין בשורה 2 */}
+          {!isMobile && rowIdx === 2 && enterBtn}
+
           {row.map(letter => {
             const statuses = keyStatus[letter] || empty;
             return (
@@ -49,15 +76,12 @@ export default function Keyboard({ onLetter, onDelete, onEnter, keyStatus, isInv
               </button>
             );
           })}
-          {rowIdx === 2 && (
-            <button
-              className="key key-wide key-delete"
-              onClick={onDelete}
-              aria-label="מחיקה"
-            >
-              ⌦
-            </button>
-          )}
+
+          {/* במובייל: delete משמאל לק' בשורה 0 */}
+          {isMobile && rowIdx === 0 && deleteBtn}
+
+          {/* בדסקטופ: delete משמאל בשורה 2 */}
+          {!isMobile && rowIdx === 2 && deleteBtn}
         </div>
       ))}
     </div>
