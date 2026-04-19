@@ -40,7 +40,7 @@ export default function Keyboard({ onLetter, onDelete, onEnter, keyStatus, isInv
               onClick={onDelete}
               aria-label="מחיקה"
             >
-              ⌫
+              ⌦
             </button>
           )}
         </div>

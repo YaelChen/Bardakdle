@@ -117,12 +117,27 @@ export default function App({ mode }) {
     }
   }, [addWordModal]);
 
-  const handleAddWord = useCallback(() => {
+  const handleAddWord = useCallback(async () => {
     const word = normalize(addWordInput.trim());
     if (word.length !== WORD_LENGTH) {
       setAddWordMsg('המילה חייבת להיות בת 5 אותיות');
       return;
     }
+
+    // כתיבה ישירה לקבצי JSON (עובד רק בסביבת פיתוח עם Vite)
+    let savedToFile = false;
+    try {
+      const res = await fetch('/api/add-word', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word, addToAnswers }),
+      });
+      savedToFile = res.ok;
+    } catch {
+      // בפרודקשן — אין API, נמשיך ל-localStorage בלבד
+    }
+
+    // עדכון localStorage (תמיד)
     const updatedValid = new Set(extraValidWords);
     updatedValid.add(word);
     setExtraValidWords(updatedValid);
@@ -136,7 +151,8 @@ export default function App({ mode }) {
     }
 
     const modeLabel = addToAnswers ? 'ניחושים + תשובות' : 'ניחושים בלבד';
-    setAddWordMsg(`"${addWordInput.trim()}" נוספה (${modeLabel})`);
+    const fileSuffix = savedToFile ? ' ✓ נשמר לקובץ' : '';
+    setAddWordMsg(`"${addWordInput.trim()}" נוספה (${modeLabel})${fileSuffix}`);
     setAddWordInput('');
   }, [addWordInput, extraValidWords, extraAnswers, addToAnswers]);
 
