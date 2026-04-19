@@ -247,7 +247,9 @@ export default function App({ mode }) {
         keyStatus={keyStatus}
         isInvalidWord={isInvalidWord}
         inputFull={currentInput.length === WORD_LENGTH}
+        numBoards={numBoards}
       />
+      <div className="keyboard-spacer" />
 
       <footer className="app-footer">
         מצאתם באג או מילה חסרה?{' '}
