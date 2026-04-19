@@ -12,7 +12,9 @@ export const MODES = {
 
 // בוחר N מילים לפי seed (מספר היום) — אותו seed = אותן מילים
 export function pickAnswers(wordList, seed, numBoards = 16) {
-  const shuffled = seededShuffle(wordList, seed);
+  // seed שונה לכל מצב — מונע חפיפה בין 8/16/32 לוחות באותו יום
+  const modeSeed = seed * 1000 + numBoards;
+  const shuffled = seededShuffle(wordList, modeSeed);
   return shuffled.slice(0, numBoards).map(normalize);
 }
 
