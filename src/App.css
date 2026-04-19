@@ -130,7 +130,7 @@
   .boards-grid { gap: 4px; padding: 4px; }
   .boards-grid-8,
   .boards-grid-16,
-  .boards-grid-32 { grid-template-columns: repeat(4, 1fr); }
+  .boards-grid-32 { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* אריחים קטנים יותר ב-32 לוחות */
