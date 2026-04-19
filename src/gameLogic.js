@@ -13,7 +13,8 @@ export const MODES = {
 // בוחר N מילים לפי seed (מספר היום) — אותו seed = אותן מילים
 export function pickAnswers(wordList, seed, numBoards = 16) {
   // seed שונה לכל מצב — מונע חפיפה בין 8/16/32 לוחות באותו יום
-  const modeSeed = seed * 1000 + numBoards;
+  const MODE_OFFSETS = { 8: 0, 16: 1_000_000, 32: 2_000_000 };
+  const modeSeed = seed + (MODE_OFFSETS[numBoards] ?? numBoards * 100_000);
   const shuffled = seededShuffle(wordList, modeSeed);
   return shuffled.slice(0, numBoards).map(normalize);
 }
