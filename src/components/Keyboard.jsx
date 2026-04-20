@@ -21,7 +21,7 @@ function KeyGrid({ statuses, numBoards, solvedBoards }) {
     <div className={`key-grid key-grid-${numBoards}`} aria-hidden="true">
       {Array.from({ length: numBoards }, (_, i) => {
         const cellClass = solvedBoards[i]
-          ? 'key-cell key-cell-none'
+          ? 'key-cell key-cell-absent'
           : `key-cell key-cell-${statuses[i] || 'none'}`;
         return <span key={i} className={cellClass} />;
       })}
