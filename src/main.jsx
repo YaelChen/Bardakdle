@@ -15,7 +15,7 @@ function Root() {
   const modeKey = path.replace(/^\//, ''); // הסר / מההתחלה
   const mode = MODES[modeKey];
 
-  if (mode) return <App mode={mode} />;
+  if (mode) return <App key={modeKey} mode={mode} />;
   return <HomePage />;
 }
 
