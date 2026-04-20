@@ -16,19 +16,23 @@ function useMobile() {
   return isMobile;
 }
 
-function KeyGrid({ statuses, numBoards }) {
+function KeyGrid({ statuses, numBoards, solvedBoards }) {
   return (
     <div className={`key-grid key-grid-${numBoards}`} aria-hidden="true">
-      {Array.from({ length: numBoards }, (_, i) => (
-        <span key={i} className={`key-cell key-cell-${statuses[i] || 'none'}`} />
-      ))}
+      {Array.from({ length: numBoards }, (_, i) => {
+        const cellClass = solvedBoards[i]
+          ? 'key-cell key-cell-solved'
+          : `key-cell key-cell-${statuses[i] || 'none'}`;
+        return <span key={i} className={cellClass} />;
+      })}
     </div>
   );
 }
 
-export default function Keyboard({ onLetter, onDelete, onEnter, keyStatus, isInvalidWord, inputFull, numBoards }) {
+export default function Keyboard({ onLetter, onDelete, onEnter, keyStatus, isInvalidWord, inputFull, numBoards, solvedBoards }) {
   const enterDisabled = inputFull && isInvalidWord;
   const empty = new Array(numBoards).fill('');
+  const solved = solvedBoards || new Array(numBoards).fill(false);
   const isMobile = useMobile();
 
   const enterBtn = (
@@ -71,7 +75,7 @@ export default function Keyboard({ onLetter, onDelete, onEnter, keyStatus, isInv
                 onClick={() => onLetter(letter)}
                 aria-label={letter}
               >
-                <KeyGrid statuses={statuses} numBoards={numBoards} />
+                <KeyGrid statuses={statuses} numBoards={numBoards} solvedBoards={solved} />
                 <span className="key-label">{letter}</span>
               </button>
             );

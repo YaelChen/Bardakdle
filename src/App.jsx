@@ -248,6 +248,7 @@ export default function App({ mode }) {
         isInvalidWord={isInvalidWord}
         inputFull={currentInput.length === WORD_LENGTH}
         numBoards={numBoards}
+        solvedBoards={solvedBoards}
       />
       <div className="keyboard-spacer" />
 
