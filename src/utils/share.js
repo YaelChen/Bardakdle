@@ -1,21 +1,23 @@
 const DIGIT_EMOJIS = ['0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
 
+// LTR mark לפני הספרות — מונע היפוך בהקשר RTL (וואטסאפ/טלגרם בעברית)
+const LTR = '\u200E';
+
 function toEmojiNum(n) {
-  return String(n).padStart(2, '0').split('').map(d => DIGIT_EMOJIS[+d]).join('');
+  const digits = String(n).padStart(2, '0').split('').map(d => DIGIT_EMOJIS[+d]).join('');
+  return LTR + digits + LTR;
 }
 
-// מחשב עבור לוח בודד: מספר הניחוש שבו נפתר, או null אם לא נפתר
 function boardResult(boardIdx, solvedBoards, boardGuesses) {
   if (!solvedBoards[boardIdx]) return null;
   return boardGuesses[boardIdx].length;
 }
 
-// יוצר את טקסט השיתוף
-// פורמט: שורות של זוגות לוחות (כמספר הלוחות / 2)
-// לוח שנפתר: מספר הניחוש כאמוג'י דו-ספרתי
-// לוח שלא נפתר: 🟥🟥
-export function generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards = 16) {
-  const lines = [`ברדקדל יומי #${dayNumber} (${numBoards} לוחות)`];
+export function generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards = 16, gameUrl = '') {
+  // RTL mark בתחילת כל שורה — מגדיר כיוון בסיס לימין
+  const RTL = '\u200F';
+
+  const lines = [`${RTL}ברדקדל יומי #${dayNumber} (${numBoards} לוחות)`];
 
   for (let i = 0; i < numBoards; i += 2) {
     const leftResult  = boardResult(i,     solvedBoards, boardGuesses);
@@ -24,7 +26,13 @@ export function generateShareText(dayNumber, solvedBoards, boardGuesses, numBoar
     const left  = leftResult  !== null ? toEmojiNum(leftResult)  : '🟥🟥';
     const right = rightResult !== null ? toEmojiNum(rightResult) : '🟥🟥';
 
-    lines.push(`${left}⬛${right}`);
+    // בהקשר RTL: הזוג הראשון (i) מוצג מימין — כך הסדר תואם את רשת הלוחות
+    lines.push(`${RTL}${left}⬛${right}`);
+  }
+
+  if (gameUrl) {
+    lines.push('');
+    lines.push(`${RTL}שחקו גם אתם: ${gameUrl}`);
   }
 
   return lines.join('\n');

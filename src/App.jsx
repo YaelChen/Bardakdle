@@ -5,6 +5,8 @@ import { normalize, toDisplayLetter } from './words.js';
 import { WORD_LENGTH } from './gameLogic.js';
 import { getTodayDayNumber, getDateFromDayNumber, clearAllHistory } from './utils/daily.js';
 import { generateShareText } from './utils/share.js';
+
+const GAME_URL = 'https://bardakdle.vercel.app/';
 import Board from './components/Board.jsx';
 import Keyboard from './components/Keyboard.jsx';
 import Calendar from './components/Calendar.jsx';
@@ -164,7 +166,7 @@ export default function App({ mode }) {
   }, []);
 
   const handleShare = useCallback(() => {
-    const text = generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards);
+    const text = generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards, GAME_URL);
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         setShareCopied(true);
@@ -190,7 +192,7 @@ export default function App({ mode }) {
 
   const solvedCount = solvedBoards.filter(Boolean).length;
   const sharePreview = gameOver
-    ? generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards)
+    ? generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards, GAME_URL)
     : null;
   const selectedDate = getDateFromDayNumber(selectedDay);
 

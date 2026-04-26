@@ -17,12 +17,20 @@ function useMobile() {
 }
 
 function KeyGrid({ statuses, numBoards, solvedBoards }) {
+  // אם האות לא נוחשה כלל — כל הקוביות נשארות אפור בהיר
+  const hasBeenGuessed = statuses.some(s => s !== '');
+
   return (
     <div className={`key-grid key-grid-${numBoards}`} aria-hidden="true">
       {Array.from({ length: numBoards }, (_, i) => {
-        const cellClass = solvedBoards[i]
-          ? 'key-cell key-cell-absent'
-          : `key-cell key-cell-${statuses[i] || 'none'}`;
+        let cellClass;
+        if (!hasBeenGuessed) {
+          cellClass = 'key-cell key-cell-none';        // לא נוחש — אפור בהיר לכולן
+        } else if (solvedBoards[i]) {
+          cellClass = 'key-cell key-cell-absent';      // לוח פתור — אפור כהה
+        } else {
+          cellClass = `key-cell key-cell-${statuses[i] || 'none'}`;
+        }
         return <span key={i} className={cellClass} />;
       })}
     </div>
