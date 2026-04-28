@@ -25,9 +25,11 @@ function KeyGrid({ statuses, numBoards, solvedBoards }) {
       {Array.from({ length: numBoards }, (_, i) => {
         let cellClass;
         if (!hasBeenGuessed) {
-          cellClass = 'key-cell key-cell-none';        // לא נוחש — אפור בהיר לכולן
-        } else if (solvedBoards[i]) {
-          cellClass = 'key-cell key-cell-absent';      // לוח פתור — אפור כהה
+          cellClass = 'key-cell key-cell-none';             // לא נוחש — אפור בהיר לכולן
+        } else if (solvedBoards[i] && statuses[i]) {
+          cellClass = 'key-cell key-cell-solved';           // לוח פתור + אות נוחשה — ירוק כהה
+        } else if (solvedBoards[i] && !statuses[i]) {
+          cellClass = 'key-cell key-cell-none';             // לוח פתור + אות לא נוחשה — אפור בהיר
         } else {
           cellClass = `key-cell key-cell-${statuses[i] || 'none'}`;
         }

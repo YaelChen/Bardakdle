@@ -359,6 +359,7 @@
 .key-cell-correct { background: var(--color-correct); }
 .key-cell-present { background: var(--color-present); }
 .key-cell-absent  { background: var(--color-absent);  }
+.key-cell-solved  { background: #1e3d1b; }             /* ירוק כהה — לוח פתור + אות נוחשה */
 
 /* האות מרחפת מעל הגריד */
 .key-label {
