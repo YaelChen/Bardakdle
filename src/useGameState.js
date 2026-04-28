@@ -7,16 +7,13 @@ import {
 } from './gameLogic.js';
 
 function initState(dayNumber, extraAnswers, numBoards, maxGuesses) {
-  const answerPool = extraAnswers && extraAnswers.size > 0
-    ? [...ANSWERS, ...[...extraAnswers].filter(w => !ANSWERS.includes(w))]
-    : ANSWERS;
-  const answers = pickAnswers(answerPool, dayNumber, numBoards);
   const saved = loadGameState(dayNumber, numBoards);
 
-  if (saved && saved.boardGuesses) {
+  // אם יש save עם תשובות שמורות — משחזרים אותן כדי למנוע שינוי בריפרש
+  if (saved && saved.boardGuesses && saved.answers) {
     return {
       dayNumber,
-      answers,
+      answers: saved.answers,
       boardGuesses: saved.boardGuesses,
       currentInput: '',
       isInvalidWord: false,
@@ -29,6 +26,12 @@ function initState(dayNumber, extraAnswers, numBoards, maxGuesses) {
       solvedBoards: saved.solvedBoards,
     };
   }
+
+  // משחק חדש — מחשבים תשובות טריות
+  const answerPool = extraAnswers && extraAnswers.size > 0
+    ? [...ANSWERS, ...[...extraAnswers].filter(w => !ANSWERS.includes(w))]
+    : ANSWERS;
+  const answers = pickAnswers(answerPool, dayNumber, numBoards);
 
   return {
     dayNumber,

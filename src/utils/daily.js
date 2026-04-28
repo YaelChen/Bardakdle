@@ -71,6 +71,7 @@ export function clearAllHistory() {
 export function saveGameState(dayNum, state, numBoards = 16) {
   try {
     const toSave = {
+      answers: state.answers,      // נשמרות כדי למנוע שינוי בריפרש
       boardGuesses: state.boardGuesses,
       currentInput: state.currentInput,
       guessCount: state.guessCount,
