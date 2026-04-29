@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { ANSWERS, VALID_WORDS, normalize } from './words.js';
-import { loadGameState, saveGameState } from './utils/daily.js';
+import { loadGameState, saveGameState, lockAnswers } from './utils/daily.js';
 import {
   WORD_LENGTH,
   pickAnswers, evaluateGuess, isBoardSolved, computeKeyStatus
@@ -32,6 +32,10 @@ function initState(dayNumber, extraAnswers, numBoards, maxGuesses) {
     ? [...ANSWERS, ...[...extraAnswers].filter(w => !ANSWERS.includes(w))]
     : ANSWERS;
   const answers = pickAnswers(answerPool, dayNumber, numBoards);
+
+  // נועל את התשובות ב-localStorage מיד — לפני ניחוש ראשון
+  // כך שינויים עתידיים ברשימת המילים לא ישפיעו על המשחק הנוכחי
+  lockAnswers(dayNumber, answers, numBoards);
 
   return {
     dayNumber,

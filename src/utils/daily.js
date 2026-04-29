@@ -82,3 +82,22 @@ export function saveGameState(dayNum, state, numBoards = 16) {
     localStorage.setItem(STORAGE_KEY(dayNum, numBoards), JSON.stringify(toSave));
   } catch {}
 }
+
+// שמירת תשובות בלבד — נקרא בטעינת משחק חדש לפני ניחוש ראשון
+export function lockAnswers(dayNum, answers, numBoards = 16) {
+  try {
+    const existing = loadGameState(dayNum, numBoards);
+    // אם כבר יש שמירה עם תשובות — לא דורסים
+    if (existing && existing.answers) return;
+    const toSave = {
+      answers,
+      boardGuesses: existing ? existing.boardGuesses : Array.from({ length: numBoards }, () => []),
+      currentInput: '',
+      guessCount: existing ? existing.guessCount : 0,
+      gameOver: existing ? existing.gameOver : false,
+      won: existing ? existing.won : false,
+      solvedBoards: existing ? existing.solvedBoards : Array(numBoards).fill(false),
+    };
+    localStorage.setItem(STORAGE_KEY(dayNum, numBoards), JSON.stringify(toSave));
+  } catch {}
+}
