@@ -5,6 +5,7 @@ import {
   WORD_LENGTH,
   pickAnswers, evaluateGuess, isBoardSolved, computeKeyStatus
 } from './gameLogic.js';
+import DAILY_SCHEDULE from './data/daily_schedule.json';
 
 function initState(dayNumber, extraAnswers, numBoards, maxGuesses) {
   const saved = loadGameState(dayNumber, numBoards);
@@ -27,14 +28,19 @@ function initState(dayNumber, extraAnswers, numBoards, maxGuesses) {
     };
   }
 
-  // משחק חדש — מחשבים תשובות טריות
-  const answerPool = extraAnswers && extraAnswers.size > 0
-    ? [...ANSWERS, ...[...extraAnswers].filter(w => !ANSWERS.includes(w))]
-    : ANSWERS;
-  const answers = pickAnswers(answerPool, dayNumber, numBoards);
+  // משחק חדש — קודם בודקים בלוח-הזמנים הקבוע
+  const scheduleKey = `${dayNumber}_${numBoards}`;
+  let answers = DAILY_SCHEDULE[scheduleKey] || null;
 
-  // נועל את התשובות ב-localStorage מיד — לפני ניחוש ראשון
-  // כך שינויים עתידיים ברשימת המילים לא ישפיעו על המשחק הנוכחי
+  if (!answers) {
+    // fallback: חישוב דינמי (למקרה שהיום מחוץ לטווח הלוח)
+    const answerPool = extraAnswers && extraAnswers.size > 0
+      ? [...ANSWERS, ...[...extraAnswers].filter(w => !ANSWERS.includes(w))]
+      : ANSWERS;
+    answers = pickAnswers(answerPool, dayNumber, numBoards);
+  }
+
+  // נועל גם ב-localStorage (כגיבוי נוסף)
   lockAnswers(dayNumber, answers, numBoards);
 
   return {
