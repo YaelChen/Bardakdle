@@ -59,7 +59,11 @@ export default function App({ mode }) {
 
   // נועל את מספר היום ב-session — לא משתנה בחצות באמצע משחק
   const [todayDayNum] = useState(getTodayDayNumber);
-  const [selectedDay, setSelectedDay] = useState(getTodayDayNumber);
+  const [selectedDay, setSelectedDay] = useState(() => {
+    const goto = sessionStorage.getItem('bardakdal_goto_day');
+    if (goto) { sessionStorage.removeItem('bardakdal_goto_day'); return parseInt(goto); }
+    return getTodayDayNumber();
+  });
   const [showCalendar, setShowCalendar] = useState(false);
   const [showGameOver, setShowGameOver] = useState(false);
   const [extraValidWords, setExtraValidWords] = useState(loadExtraWords);

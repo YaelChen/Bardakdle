@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getDayNumber, getDateFromDayNumber, isValidGameDate, loadGameState } from '../utils/daily.js';
+import { getDayNumber, getDateFromDayNumber, loadGameState } from '../utils/daily.js';
 
 const HEBREW_MONTHS = [
   'ינואר','פברואר','מרץ','אפריל','מאי','יוני',
@@ -10,13 +10,35 @@ const HEBREW_DAYS = ['א','ב','ג','ד','ה','ו','ש'];
 // EPOCH: 1 באפריל 2026
 const EPOCH_DATE = new Date(2026, 3, 1);
 
-function getStatusEmoji(dayNum) {
-  const saved = loadGameState(dayNum);
-  if (!saved) return null;
-  if (saved.won) return '✓';
-  if (saved.gameOver) return '✗';
-  if (saved.guessCount > 0) return '…';
+// גבול מוקדם ביותר: תחילת החודש שהוא 6 חודשים אחורה
+function getEarliestDate() {
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth() - 6, 1);
+}
+
+// בודק את כל המצבים (8/16/32) ומחזיר סטטוס משולב ליום
+export function getDayStatus(dayNum) {
+  const modes = [8, 16, 32];
+  const saves = modes.map(nb => loadGameState(dayNum, nb)).filter(Boolean);
+
+  if (saves.length === 0) return null;
+
+  // בתהליך — עדיפות עליונה
+  if (saves.some(s => !s.gameOver && s.guessCount > 0)) return 'partial';
+  // לפחות אחד נפתר מלא
+  if (saves.some(s => s.gameOver && s.won)) return 'won';
+  // לפחות אחד נגמר בהפסד
+  if (saves.some(s => s.gameOver && !s.won)) return 'lost';
+
   return null;
+}
+
+// סטטוס למצב ספציפי (8/16/32)
+export function getModeStatus(dayNum, numBoards) {
+  const s = loadGameState(dayNum, numBoards);
+  if (!s || s.guessCount === 0) return null;
+  if (!s.gameOver) return 'partial';
+  return s.won ? 'won' : 'lost';
 }
 
 export default function Calendar({ onSelectDay, onClose, currentDayNumber }) {
@@ -25,10 +47,20 @@ export default function Calendar({ onSelectDay, onClose, currentDayNumber }) {
   const [viewMonth, setViewMonth] = useState(today.getMonth());
 
   const todayDayNum = getDayNumber(today);
+  const earliest = getEarliestDate();
+  // הגבול המוקדם הוא המאוחר מבין: epoch ו-6 חודשים אחורה
+  const limitDate = earliest < EPOCH_DATE ? EPOCH_DATE : earliest;
+
+  function isValidGameDate(date) {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const todayMs = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    return d >= limitDate.getTime() && d <= todayMs;
+  }
 
   function canGoPrev() {
-    return viewYear > EPOCH_DATE.getFullYear() ||
-      (viewYear === EPOCH_DATE.getFullYear() && viewMonth > EPOCH_DATE.getMonth());
+    if (viewYear > limitDate.getFullYear()) return true;
+    if (viewYear === limitDate.getFullYear() && viewMonth > limitDate.getMonth()) return true;
+    return false;
   }
 
   function canGoNext() {
@@ -48,35 +80,29 @@ export default function Calendar({ onSelectDay, onClose, currentDayNumber }) {
     else setViewMonth(m => m + 1);
   }
 
-  // בניית תאי הלוח
   const firstDay = new Date(viewYear, viewMonth, 1);
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  // יום בשבוע של תחילת החודש (0=ראשון)
-  let startDow = firstDay.getDay(); // 0=Sun
+  const startDow = firstDay.getDay();
 
   const cells = [];
-  // ריווח לפני היום הראשון
   for (let i = 0; i < startDow; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const STATUS_LABEL = { won: '✓', lost: '✗', partial: '…' };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="calendar-box" dir="rtl" onClick={e => e.stopPropagation()}>
         <div className="calendar-header">
           <button className="cal-nav" onClick={nextMonth} disabled={!canGoNext()}>›</button>
-          <span className="cal-title">
-            {HEBREW_MONTHS[viewMonth]} {viewYear}
-          </span>
+          <span className="cal-title">{HEBREW_MONTHS[viewMonth]} {viewYear}</span>
           <button className="cal-nav" onClick={prevMonth} disabled={!canGoPrev()}>‹</button>
         </div>
 
         <div className="calendar-grid">
-          {/* כותרות ימים */}
           {HEBREW_DAYS.map(d => (
             <div key={d} className="cal-day-label">{d}</div>
           ))}
-
-          {/* תאים */}
           {cells.map((day, idx) => {
             if (!day) return <div key={`e-${idx}`} />;
 
@@ -85,7 +111,7 @@ export default function Calendar({ onSelectDay, onClose, currentDayNumber }) {
             const dayNum = valid ? getDayNumber(cellDate) : null;
             const isToday = dayNum === todayDayNum;
             const isCurrent = dayNum === currentDayNumber;
-            const status = dayNum ? getStatusEmoji(dayNum) : null;
+            const status = dayNum ? getDayStatus(dayNum) : null;
 
             return (
               <button
@@ -95,16 +121,14 @@ export default function Calendar({ onSelectDay, onClose, currentDayNumber }) {
                   !valid ? 'cal-day-disabled' : '',
                   isToday ? 'cal-day-today' : '',
                   isCurrent ? 'cal-day-current' : '',
-                  status === '✓' ? 'cal-day-won' :
-                  status === '✗' ? 'cal-day-lost' :
-                  status === '…' ? 'cal-day-partial' : '',
+                  status ? `cal-day-${status}` : '',
                 ].filter(Boolean).join(' ')}
                 disabled={!valid}
                 onClick={() => valid && onSelectDay(dayNum)}
-                title={valid ? `יומי #${dayNum}${status ? ' ' + status : ''}` : ''}
+                title={valid ? `יומי #${dayNum}${status ? ' ' + STATUS_LABEL[status] : ''}` : ''}
               >
                 <span className="cal-day-num">{day}</span>
-                {status && <span className="cal-day-status">{status}</span>}
+                {status && <span className="cal-day-status">{STATUS_LABEL[status]}</span>}
               </button>
             );
           })}

@@ -113,6 +113,46 @@
   margin-top: 8px;
 }
 
+.btn-past-games-home {
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: #2a2a2b;
+  color: #ccc;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-past-games-home:hover {
+  background: #3a3a3c;
+  color: #fff;
+}
+
+.past-mode-picker h3 {
+  margin-bottom: 16px;
+  font-size: 1rem;
+  color: #ccc;
+}
+
+.past-mode-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* צבע גבול לפי סטטוס בחלון בחירת המצב */
+.mode-status-won   { border-color: var(--color-correct) !important; }
+.mode-status-lost  { border-color: #c0392b !important; }
+.mode-status-partial { border-color: var(--color-present) !important; }
+
+.mode-status-icon {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
 @media (max-width: 480px) {
   .home-title { font-size: 2.2rem; }
   .home-modes { gap: 8px; }
