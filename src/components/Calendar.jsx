@@ -110,7 +110,7 @@ export default function Calendar({ onSelectDay, onClose, currentDayNumber }) {
             const valid = isValidGameDate(cellDate);
             const dayNum = valid ? getDayNumber(cellDate) : null;
             const isToday = dayNum === todayDayNum;
-            const isCurrent = dayNum === currentDayNumber;
+            const isCurrent = dayNum !== null && dayNum === currentDayNumber;
             const status = dayNum ? getDayStatus(dayNum) : null;
 
             return (
