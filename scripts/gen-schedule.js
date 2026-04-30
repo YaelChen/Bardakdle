@@ -82,13 +82,13 @@ for (let day = 1; day <= MAX_DAYS; day++) {
   for (const numBoards of MODES) {
     const key = `${day}_${numBoards}`;
 
-    // ימים שעברו — שמור ולא תשנה
-    if (schedule[key] && day < todayDay) {
+    // ימים שעברו וגם היום — שמור ולא תשנה (למנוע שינוי במהלך היום)
+    if (schedule[key] && day <= todayDay) {
       preserved++;
       continue;
     }
 
-    // היום ואילך — חשב לפי רשימת המילים הנוכחית
+    // ימים עתידיים בלבד — חשב לפי רשימת המילים הנוכחית
     const seed     = day + MODE_OFFSETS[numBoards];
     const shuffled = seededShuffle(answers, seed);
     schedule[key]  = shuffled.slice(0, numBoards);
