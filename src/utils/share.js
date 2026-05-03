@@ -13,11 +13,16 @@ function boardResult(boardIdx, solvedBoards, boardGuesses) {
   return boardGuesses[boardIdx].length;
 }
 
-export function generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards = 16, gameUrl = '') {
+export function generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards = 16, gameUrl = '', guessCount = 0) {
   // RTL mark בתחילת כל שורה — מגדיר כיוון בסיס לימין
   const RTL = '\u200F';
 
+  const won = solvedBoards.every(Boolean);
   const lines = [`${RTL}ברדקדל יומי #${dayNumber} (${numBoards} לוחות)`];
+
+  if (won && guessCount > 0) {
+    lines.push(`${RTL}פתרתי ב-${guessCount} ניחושים`);
+  }
 
   for (let i = 0; i < numBoards; i += 2) {
     const leftResult  = boardResult(i,     solvedBoards, boardGuesses);

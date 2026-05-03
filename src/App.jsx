@@ -170,7 +170,7 @@ export default function App({ mode }) {
   }, []);
 
   const handleShare = useCallback(() => {
-    const text = generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards, GAME_URL);
+    const text = generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards, GAME_URL, guessCount);
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         setShareCopied(true);
@@ -196,7 +196,7 @@ export default function App({ mode }) {
 
   const solvedCount = solvedBoards.filter(Boolean).length;
   const sharePreview = gameOver
-    ? generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards, GAME_URL)
+    ? generateShareText(dayNumber, solvedBoards, boardGuesses, numBoards, GAME_URL, guessCount)
     : null;
   const selectedDate = getDateFromDayNumber(selectedDay);
 
