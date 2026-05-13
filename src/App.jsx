@@ -74,6 +74,8 @@ export default function App({ mode }) {
   const [addToAnswers, setAddToAnswers] = useState(true);
   const [shareCopied, setShareCopied] = useState(false);
   const addWordInputRef = useRef(null);
+  const gameStartTimeRef = useRef(null);
+  const gameOverOnLoadRef = useRef(gameOver);
 
   const isToday = selectedDay === todayDayNum;
 
@@ -84,10 +86,35 @@ export default function App({ mode }) {
     addLetter, deleteLetter, submitGuess,
   } = useGameState(selectedDay, extraValidWords, extraAnswers, numBoards, maxGuesses);
 
-  // פותח את חלונית הסיום כשהמשחק נגמר (כולל טעינה מחדש של משחק שכבר נגמר)
   useEffect(() => {
-    if (gameOver) setShowGameOver(true);
-  }, [gameOver, selectedDay]);
+    gameOverOnLoadRef.current = gameOver;
+    if (!gameOver) {
+      gameStartTimeRef.current = Date.now();
+      window.mixpanel?.track('Game Started', {
+        day_number: selectedDay,
+        num_boards: numBoards,
+        mode: label,
+      });
+    }
+  }, [selectedDay, numBoards]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (gameOver) {
+      setShowGameOver(true);
+      if (!gameOverOnLoadRef.current) {
+        const duration = gameStartTimeRef.current
+          ? Math.round((Date.now() - gameStartTimeRef.current) / 1000)
+          : null;
+        window.mixpanel?.track('Game Ended', {
+          result: won ? 'won' : 'lost',
+          score: `${solvedBoards.filter(Boolean).length}/${numBoards}`,
+          duration_seconds: duration,
+          day_number: selectedDay,
+          num_boards: numBoards,
+        });
+      }
+    }
+  }, [gameOver, selectedDay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = useCallback(() => {
     submitGuess(extraValidWords);
