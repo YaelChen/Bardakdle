@@ -256,8 +256,6 @@ export default function App({ mode }) {
         numBoards={numBoards}
         solvedBoards={solvedBoards}
       />
-      <div className="keyboard-spacer" />
-
       <footer className="app-footer">
         מצאתם באג או מילה חסרה?{' '}
         <a
@@ -269,6 +267,8 @@ export default function App({ mode }) {
           כתבו לי
         </a>
       </footer>
+
+      <div className="keyboard-spacer" />
 
       {/* מודל הוספת מילה + ניקוי היסטוריה */}
       {addWordModal && (
