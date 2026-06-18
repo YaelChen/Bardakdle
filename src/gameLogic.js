@@ -10,13 +10,33 @@ export const MODES = {
   32: { numBoards: 32, maxGuesses: 39, label: 'קשה',  emoji: '🔴', path: '/32' },
 };
 
+// האם מילה מכילה לפחות שתי אותיות שכל אחת מהן מופיעה פעמיים או יותר
+function hasTwoDoublePairs(word) {
+  const freq = {};
+  for (const ch of word) freq[ch] = (freq[ch] || 0) + 1;
+  return Object.values(freq).filter(v => v >= 2).length >= 2;
+}
+
 // בוחר N מילים לפי seed (מספר היום) — אותו seed = אותן מילים
 export function pickAnswers(wordList, seed, numBoards = 16) {
   // seed שונה לכל מצב — מונע חפיפה בין 8/16/32 לוחות באותו יום
   const MODE_OFFSETS = { 8: 0, 16: 1_000_000, 32: 2_000_000 };
   const modeSeed = seed + (MODE_OFFSETS[numBoards] ?? numBoards * 100_000);
   const shuffled = seededShuffle(wordList, modeSeed);
-  return shuffled.slice(0, numBoards).map(normalize);
+
+  // מאפשרים לכל היותר מילה אחת עם שתי זוגות אותיות (כמו "דקדוק", "כלבלב")
+  const result = [];
+  let doubleCount = 0;
+  for (const word of shuffled) {
+    if (result.length >= numBoards) break;
+    const norm = normalize(word);
+    if (hasTwoDoublePairs(norm)) {
+      if (doubleCount >= 1) continue;
+      doubleCount++;
+    }
+    result.push(norm);
+  }
+  return result;
 }
 
 // מצב התאים: null | 'correct' | 'present' | 'absent'
