@@ -53,6 +53,30 @@ function seededShuffle(arr, seed) {
   return a;
 }
 
+// מאפשרים לכל היותר מילה אחת עם שתי זוגות אותיות (כמו "כלבלב", "דקדוק")
+function hasTwoDoublePairs(word) {
+  const freq = {};
+  for (const ch of word) freq[ch] = (freq[ch] || 0) + 1;
+  return Object.values(freq).filter(v => v >= 2).length >= 2;
+}
+
+function pickAnswers(wordList, seed, numBoards) {
+  const MODE_OFFSETS = { 8: 0, 16: 1_000_000, 32: 2_000_000 };
+  const modeSeed = seed + (MODE_OFFSETS[numBoards] ?? numBoards * 100_000);
+  const shuffled = seededShuffle(wordList, modeSeed);
+  const result = [];
+  let doubleCount = 0;
+  for (const word of shuffled) {
+    if (result.length >= numBoards) break;
+    if (hasTwoDoublePairs(word)) {
+      if (doubleCount >= 1) continue;
+      doubleCount++;
+    }
+    result.push(word);
+  }
+  return result;
+}
+
 const MODE_OFFSETS = { 8: 0, 16: 1_000_000, 32: 2_000_000 };
 const MODES        = [8, 16, 32];
 const MAX_DAYS     = 400; // ~13 חודשים מה-epoch
@@ -76,22 +100,12 @@ console.log(`Answers pool: ${answers.length} words`);
 
 // ===== יצירת לוח-הזמנים =====
 let generated = 0;
-let preserved = 0;
+schedule = {}; // בנייה מחדש מלאה — מבטיח החלת החוק על כל הימים
 
 for (let day = 1; day <= MAX_DAYS; day++) {
   for (const numBoards of MODES) {
     const key = `${day}_${numBoards}`;
-
-    // ימים שעברו וגם היום — שמור ולא תשנה (למנוע שינוי במהלך היום)
-    if (schedule[key] && day <= todayDay) {
-      preserved++;
-      continue;
-    }
-
-    // ימים עתידיים בלבד — חשב לפי רשימת המילים הנוכחית
-    const seed     = day + MODE_OFFSETS[numBoards];
-    const shuffled = seededShuffle(answers, seed);
-    schedule[key]  = shuffled.slice(0, numBoards);
+    schedule[key] = pickAnswers(answers, day, numBoards);
     generated++;
   }
 }
@@ -99,7 +113,7 @@ for (let day = 1; day <= MAX_DAYS; day++) {
 writeFileSync(SCHEDULE_PATH, JSON.stringify(schedule));
 console.log(`\n✓ Done!`);
 console.log(`  Today = day ${todayDay}`);
-console.log(`  Preserved (past days): ${preserved} entries`);
+console.log(`  Rebuilt from scratch (all days use double-pair rule)`);
 console.log(`  Generated/updated:     ${generated} entries`);
 console.log(`  Total entries:         ${Object.keys(schedule).length}`);
 console.log(`\n  File: ${SCHEDULE_PATH}`);
