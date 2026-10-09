@@ -26,14 +26,17 @@ export function pickAnswers(wordList, seed, numBoards = 16) {
 
   // מאפשרים לכל היותר מילה אחת עם שתי זוגות אותיות (כמו "דקדוק", "כלבלב")
   const result = [];
+  const seen = new Set();
   let doubleCount = 0;
   for (const word of shuffled) {
     if (result.length >= numBoards) break;
     const norm = normalize(word);
+    if (seen.has(norm)) continue;
     if (hasTwoDoublePairs(norm)) {
       if (doubleCount >= 1) continue;
       doubleCount++;
     }
+    seen.add(norm);
     result.push(norm);
   }
   return result;

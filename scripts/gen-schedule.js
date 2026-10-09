@@ -65,13 +65,16 @@ function pickAnswers(wordList, seed, numBoards) {
   const modeSeed = seed + (MODE_OFFSETS[numBoards] ?? numBoards * 100_000);
   const shuffled = seededShuffle(wordList, modeSeed);
   const result = [];
+  const seen = new Set();
   let doubleCount = 0;
   for (const word of shuffled) {
     if (result.length >= numBoards) break;
+    if (seen.has(word)) continue;
     if (hasTwoDoublePairs(word)) {
       if (doubleCount >= 1) continue;
       doubleCount++;
     }
+    seen.add(word);
     result.push(word);
   }
   return result;
