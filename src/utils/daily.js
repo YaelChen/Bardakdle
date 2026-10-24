@@ -49,10 +49,57 @@ export function seededShuffle(arr, seed) {
 // ===== localStorage persistence =====
 const STORAGE_KEY = (dayNum, numBoards = 16) => `bardakdal_game_v1_${numBoards}_${dayNum}`;
 
+// דחיסת תוצאות: 'correct'→'c', 'present'→'p', 'absent'→'a'
+// חוסכת ~3.5x בגודל ה-save ומונעת עיקסת מגבלת 5MB ב-iOS Safari
+const ENC = { correct: 'c', present: 'p', absent: 'a' };
+const DEC = { c: 'correct', p: 'present', a: 'absent' };
+
+function compressGuesses(boardGuesses) {
+  return boardGuesses.map(board =>
+    board.map(({ word, result }) => ({ w: word, r: result.map(x => ENC[x] ?? x).join('') }))
+  );
+}
+
+function decompressGuesses(boardGuesses) {
+  return boardGuesses.map(board =>
+    board.map(guess =>
+      'word' in guess
+        ? guess  // פורמט ישן — תאימות לאחור
+        : { word: guess.w, result: [...guess.r].map(c => DEC[c] ?? c) }
+    )
+  );
+}
+
+// דחיסת כל ה-saves הישנים — מופעל פעם אחת בהפעלת האפליקציה
+export function compressAllSaves() {
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('bardakdal_game_v1_')) keys.push(k);
+    }
+    for (const key of keys) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const saved = JSON.parse(raw);
+        if (!saved.boardGuesses) continue;
+        const firstGuess = saved.boardGuesses.flat()[0];
+        if (!firstGuess || 'w' in firstGuess) continue; // כבר דחוס
+        saved.boardGuesses = compressGuesses(saved.boardGuesses);
+        localStorage.setItem(key, JSON.stringify(saved));
+      } catch {}
+    }
+  } catch {}
+}
+
 export function loadGameState(dayNum, numBoards = 16) {
   try {
     const raw = localStorage.getItem(STORAGE_KEY(dayNum, numBoards));
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const saved = JSON.parse(raw);
+    if (saved?.boardGuesses) saved.boardGuesses = decompressGuesses(saved.boardGuesses);
+    return saved;
   } catch { return null; }
 }
 
@@ -71,8 +118,8 @@ export function clearAllHistory() {
 export function saveGameState(dayNum, state, numBoards = 16) {
   try {
     const toSave = {
-      answers: state.answers,      // נשמרות כדי למנוע שינוי בריפרש
-      boardGuesses: state.boardGuesses,
+      answers: state.answers,
+      boardGuesses: compressGuesses(state.boardGuesses),
       currentInput: state.currentInput,
       guessCount: state.guessCount,
       gameOver: state.gameOver,
@@ -87,11 +134,10 @@ export function saveGameState(dayNum, state, numBoards = 16) {
 export function lockAnswers(dayNum, answers, numBoards = 16) {
   try {
     const existing = loadGameState(dayNum, numBoards);
-    // אם כבר יש שמירה עם תשובות — לא דורסים
     if (existing && existing.answers) return;
     const toSave = {
       answers,
-      boardGuesses: existing ? existing.boardGuesses : Array.from({ length: numBoards }, () => []),
+      boardGuesses: existing ? compressGuesses(existing.boardGuesses) : Array.from({ length: numBoards }, () => []),
       currentInput: '',
       guessCount: existing ? existing.guessCount : 0,
       gameOver: existing ? existing.gameOver : false,

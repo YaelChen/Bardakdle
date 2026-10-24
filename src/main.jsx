@@ -5,6 +5,9 @@ import { Router, useRouter } from './router.jsx';
 import App from './App.jsx';
 import HomePage from './HomePage.jsx';
 import { MODES } from './gameLogic.js';
+import { compressAllSaves } from './utils/daily.js';
+
+compressAllSaves();
 
 function Root() {
   const { path } = useRouter();
